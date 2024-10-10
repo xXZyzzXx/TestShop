@@ -1,4 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -25,6 +26,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     search_fields = ["name", "description"]
     ordering_fields = ["price", "name"]
 
+    @extend_schema(request=PriceUpdateSerializer, responses={200: ProductSerializer})
     @action(detail=True, methods=["PATCH"], permission_classes=[IsAuthenticated])
     def change_price(self, request: Request, *args, **kwargs) -> Response:
         serializer = PriceUpdateSerializer(data=request.data)
@@ -36,6 +38,7 @@ class ProductViewSet(viewsets.ModelViewSet):
         response_serializer = self.get_serializer(updated_product)
         return Response(response_serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(request=PromotionStartSerializer, responses={200: ProductSerializer})
     @action(detail=True, methods=["POST"], permission_classes=[IsAuthenticated])
     def start_promotion(self, request: Request, *args, **kwargs) -> Response:
         serializer = PromotionStartSerializer(data=request.data)

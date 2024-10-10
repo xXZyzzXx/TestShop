@@ -42,3 +42,7 @@ Superuser credentials:
 Login: admin
 Password: 123
 ```
+
+### Methods description
+
+Swagger http://127.0.0.1:8000/docs/

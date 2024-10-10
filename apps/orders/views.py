@@ -1,4 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from drf_spectacular.utils import extend_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -18,6 +19,9 @@ from apps.orders.services import OrderService, ReservationService
 class ReservationViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        request=ReservationSerializer, responses={200: ReservationSerializer}
+    )
     @action(detail=False, methods=["POST"])
     def reserve(self, request: Request) -> Response:
         serializer = ReservationSerializer(
@@ -49,10 +53,13 @@ class OrderViewSet(viewsets.ModelViewSet):  # Can be changed to Generic
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
-    filterset_fields = ["items__product__id", "user__id", "sold_at"]
+    filterset_fields = ["items__product__id", "user__id"]
     search_fields = ["items__product__name"]
-    ordering_fields = ["sold_at"]
+    ordering_fields = ["created_at"]
 
+    @extend_schema(
+        request=OrderCreateSerializer, responses={200: OrderSerializer(many=True)}
+    )
     def create(self, request: Request, *args, **kwargs) -> Response:
         """Create a new Order and update the available stock of the Products"""
         serializer = OrderCreateSerializer(
